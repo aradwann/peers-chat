@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:ns1="http://sozi.baierouge.fr" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg3545" viewBox="0 0 188.1 191.68" version="1.1" inkscape:version="0.91 r13725">
+  <title id="title3574">Pair-work</title>
+  <g id="layer1" transform="translate(-65.955 -519.37)">
+    <g id="g5490" transform="matrix(.82631 .56322 -.56322 .82631 -251.5 231.71)">
+      <g id="g5392">
+        <path id="path5390" style="stroke:#000000;stroke-width:10.4;fill:none" d="m642.41 133.54c-23.717 27.901-64.083 21.729-96.668 23.238-19.904-1.7236-70.941-1.2705-59.84-31.734 17.648-17.979 45.161-11.008 67.727-14.992 29.776-0.98484 62.828 1.096 87.332 19.661 0.48287 1.2758 0.96574 2.5515 1.4486 3.8273z"/>
+        <path id="path5211-5" style="stroke:#000000;stroke-width:10.4;fill:#c8b7b7" d="m580.9 119.44c2.4234 30.505-52.36 28.829-48.535-1.6219 2.2279-24.498 42.591-29.835 48.413-4.8126l0.37042 3.1771-0.24768 3.2574z"/>
+      </g>
+      <g id="g5396" transform="matrix(-.98939 -.14531 .14531 -.98939 1095.7 253.56)">
+        <path id="path5398" style="stroke:#000000;stroke-width:10.4;fill:none" d="m642.41 133.54c-23.768 27.914-64.067 21.725-96.668 23.238-19.904-1.7236-70.941-1.2705-59.84-31.734 17.648-17.979 45.161-11.008 67.727-14.992 29.776-0.98482 62.828 1.096 87.332 19.661 0.48287 1.2758 0.96574 2.5515 1.4486 3.8273z"/>
+        <path id="path5400" style="stroke:#000000;stroke-width:10.4;fill:#c8b7b7" d="m580.9 119.44c2.4234 30.505-52.36 28.829-48.535-1.6219 2.228-24.498 42.591-29.835 48.413-4.8126l0.37042 3.1771-0.24769 3.2574z"/>
+      </g>
+    </g>
+  </g>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+        <dc:publisher>
+          <cc:Agent rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>Pair-work</dc:title>
+        <dc:date>2012-04-08T06:52:59</dc:date>
+        <dc:description>Plan view of two figures talking, from the facilitation set.</dc:description>
+        <dc:source>https://openclipart.org/detail/169419/pair-work-by-bitterjug</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>bitterjug</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>abstract</rdf:li>
+            <rdf:li>chat</rdf:li>
+            <rdf:li>conversation</rdf:li>
+            <rdf:li>dialogue</rdf:li>
+            <rdf:li>discussion</rdf:li>
+            <rdf:li>pair</rdf:li>
+            <rdf:li>talking</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>
