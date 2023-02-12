@@ -73,20 +73,59 @@ function App() {
 
       <h1>Peers</h1>
       <div className="card">
-
         <button id='connectBtn' onClick={handleConnectClick} disabled={isConnectBtnDisabled}>
           Connect Peers
         </button>
-
-        <button id='connectBtn' onClick={handleDisonnectClick} disabled={isDisconnectBtnDisabled}>
+        <button id='disconnectBtn' onClick={handleDisonnectClick} disabled={isDisconnectBtnDisabled}>
           Disconnect Peers
         </button>
+        <p>connection state is {connectionState}</p>
+      </div>
+      <div className="card">
+        <div className='messageBox'>
+          <label htmlFor='localOutgoing'>Local Outgoing messages:</label>
+          <textarea id='localOutgoing' placeholder='Local outgoing message goes here'></textarea>
+          <button>Send message from local</button>
+        </div>
 
       </div>
       <div className="card">
-        <p>connection state is {connectionState}</p>
-      </div>
+        <div className='messageBox'>
+          <label htmlFor='remoteOutgoing'>Remote Outgoing messages:</label>
+          <textarea id='remoteOutgoing' placeholder='remote outgoing message goes here'></textarea>
+          <button>Send message from remote</button>
+        </div>
 
+      </div>
+      <div className='card'>
+        <div className="container">
+          <img src="/pepe-smile.png" alt="Avatar" />
+          <span className="peer-left">Local</span>
+          <p>Hello. How are you today?</p>
+          <span className="time-right">11:00</span>
+        </div>
+
+        <div className="container darker">
+          <img src="/pepe-cool-mirrored.png" alt="Avatar" className="right" />
+          <span className="peer-right">Remote</span>
+          <p>Hey! I'm fine. Thanks for asking!</p>
+          <span className="time-left">11:01</span>
+        </div>
+
+        <div className="container">
+          <img src="/pepe-smile.png" alt="Avatar" />
+          <span className="peer-left">Local</span>
+          <p>Sweet! So, what do you wanna do today?</p>
+          <span className="time-right">11:02</span>
+        </div>
+
+        <div className="container darker">
+          <img src="/pepe-cool-mirrored.png" alt="Avatar" className="right" />
+          <span className="peer-right">Remote</span>
+          <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
+          <span className="time-left">11:05</span>
+        </div>
+      </div>
     </div >
   )
 }

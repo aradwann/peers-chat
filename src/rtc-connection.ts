@@ -1,6 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
-
-
 export async function connectPeers(localConnection: RTCPeerConnection, remoteConnection: RTCPeerConnection) {
 
     // start the connection attempt
