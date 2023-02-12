@@ -1,5 +1,6 @@
 import { ButtonHTMLAttributes, useEffect, useState } from 'react'
 import './App.css'
+import { LocalMessage, RemoteMessage } from './components/Message';
 import { connectPeers } from './rtc-connection'
 
 function App() {
@@ -24,11 +25,13 @@ function App() {
   };
 
   // remote data channel event listener
-  remoteConnection.ondatachannel = (e) => {
-    console.log('receivedChannel opened', e.channel);
-    e.channel.onclose = (e) => {
+  remoteConnection.ondatachannel = (event) => {
+    const receiveChannel = event.channel
+    console.log('receivedChannel opened', receiveChannel);
+    receiveChannel.onclose = (event) => {
       console.log('sendChannel closed on remote peer');
     };
+    receiveChannel.onmessage = (event) => console.log('message receive on remote', event.data)
   }
 
 
@@ -57,6 +60,12 @@ function App() {
     console.log(localConnection.connectionState)
   }
 
+  function handleLocalSend(e: SubmitEvent) {
+    e.preventDefault()
+
+    // sendChannel.send(e.target.value)
+  }
+
   useEffect(() => {
     if (connectionState === 'connected') {
       setConnectBtnDisabled(true)
@@ -81,50 +90,45 @@ function App() {
         </button>
         <p>connection state is {connectionState}</p>
       </div>
-      <div className="card">
-        <div className='messageBox'>
-          <label htmlFor='localOutgoing'>Local Outgoing messages:</label>
-          <textarea id='localOutgoing' placeholder='Local outgoing message goes here'></textarea>
-          <button>Send message from local</button>
-        </div>
 
+      <div className="card">
+        <div className="messagebox">
+          <label htmlFor="message"
+          >Enter a message:
+            <input
+              type="text"
+              name="message"
+              id="message"
+              placeholder="Message text"
+            />
+          </label>
+          <button id="sendButton" name="sendButton" className="buttonright" >
+            Send from local
+          </button>
+        </div>
       </div>
       <div className="card">
-        <div className='messageBox'>
-          <label htmlFor='remoteOutgoing'>Remote Outgoing messages:</label>
-          <textarea id='remoteOutgoing' placeholder='remote outgoing message goes here'></textarea>
-          <button>Send message from remote</button>
+        <div className="messagebox">
+          <label htmlFor="message"
+          >Enter a message:
+            <input
+              type="text"
+              name="message"
+              id="message"
+              placeholder="Message text"
+            />
+          </label>
+          <button id="sendButton" name="sendButton" className="buttonright" >
+            Send from remote
+          </button>
         </div>
-
       </div>
+
       <div className='card'>
-        <div className="container">
-          <img src="/pepe-smile.png" alt="Avatar" />
-          <span className="peer-left">Local</span>
-          <p>Hello. How are you today?</p>
-          <span className="time-right">11:00</span>
-        </div>
-
-        <div className="container darker">
-          <img src="/pepe-cool-mirrored.png" alt="Avatar" className="right" />
-          <span className="peer-right">Remote</span>
-          <p>Hey! I'm fine. Thanks for asking!</p>
-          <span className="time-left">11:01</span>
-        </div>
-
-        <div className="container">
-          <img src="/pepe-smile.png" alt="Avatar" />
-          <span className="peer-left">Local</span>
-          <p>Sweet! So, what do you wanna do today?</p>
-          <span className="time-right">11:02</span>
-        </div>
-
-        <div className="container darker">
-          <img src="/pepe-cool-mirrored.png" alt="Avatar" className="right" />
-          <span className="peer-right">Remote</span>
-          <p>Nah, I dunno. Play soccer.. or learn more coding perhaps?</p>
-          <span className="time-left">11:05</span>
-        </div>
+        <LocalMessage message='Hello. How are you today?' />
+        <RemoteMessage message="Hey! I'm fine. Thanks for asking!" />
+        <LocalMessage message='Sweet! So, what do you wanna do today?' />
+        <RemoteMessage message="Nah, I dunno. Play soccer.. or learn more coding perhaps?" />
       </div>
     </div >
   )
