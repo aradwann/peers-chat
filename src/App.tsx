@@ -93,8 +93,7 @@ function App() {
         <p>connection state is {connectionState}</p>
       </div>
 
-      <MessageForm sender={MessageSender.local} disabled={!isConnectBtnDisabled} handleSend={handleSend} />
-      <MessageForm sender={MessageSender.remote} disabled={!isConnectBtnDisabled} handleSend={handleSend} />
+      <MessageForm disabled={!isConnectBtnDisabled} handleSend={handleSend} />
       <MessageList messages={messages} />
     </div >
   )

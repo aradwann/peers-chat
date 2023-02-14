@@ -1,13 +1,22 @@
-import { FormEvent } from "react";
+import { FormEvent, MouseEvent, useState } from "react";
 import { MessageSender } from "../typing/enums";
 import { Message } from "../typing/interfaces";
 
-export function MessageForm(props: { sender: MessageSender, disabled: boolean, handleSend: (message: Message) => void }) {
+export function MessageForm(props: { disabled: boolean, handleSend: (message: Message) => void }) {
+
+    const [sender, setSender] = useState(MessageSender.local)
+
+    function handleClick(e: MouseEvent) {
+        const buttonId = e.currentTarget.id
+        buttonId === "localSendButton" ? setSender(MessageSender.local) : setSender(MessageSender.remote)
+        console.log(e.currentTarget.id);
+    }
+
     function handleSubmit(e: FormEvent) {
         e.preventDefault()
         const formData = new FormData(e.target as HTMLFormElement);
         const messageData = formData.get('message') as string
-        props.handleSend({ data: messageData, sender: props.sender })
+        props.handleSend({ data: messageData, sender })
         console.log(`you submitted ${messageData}`);
 
     }
@@ -26,8 +35,11 @@ export function MessageForm(props: { sender: MessageSender, disabled: boolean, h
                         />
                     </label>
                 </div>
-                <button id="sendButton" name="sendButton" className="buttonright" disabled={props.disabled}>
-                    Send from {props.sender}
+                <button id="localSendButton" name="sendButton" className="buttonright" disabled={props.disabled} onClick={handleClick}>
+                    Send from {MessageSender.local}
+                </button>
+                <button id="remoteSendButton" name="sendButton" className="buttonright" disabled={props.disabled} onClick={handleClick}>
+                    Send from {MessageSender.local}
                 </button>
             </form>
         </div>

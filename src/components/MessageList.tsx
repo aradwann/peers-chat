@@ -6,8 +6,8 @@ import { RemoteMessage } from "./RemoteMessage";
 export function MessageList(props: { messages: Message[] }) {
     const messages = props.messages.map(
         (message) => message.sender === MessageSender.local ?
-            <LocalMessage data={message.data} />
-            : <RemoteMessage data={message.data} />)
+            <LocalMessage key={crypto.randomUUID()} data={message.data} />
+            : <RemoteMessage key={crypto.randomUUID()} data={message.data} />)
     return (
         <div className='card'>
             {messages}
