@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { LocalMessage, RemoteMessage } from './components/Message';
 import { MessageForm } from './components/MessageForm';
 import { MessageList } from './components/MessageList';
 import { connectPeers } from './rtc-connection'

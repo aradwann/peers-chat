@@ -1,6 +1,7 @@
 import { MessageSender } from "../typing/enums";
 import { Message } from "../typing/interfaces";
-import { LocalMessage, RemoteMessage } from "./Message";
+import { LocalMessage } from "./LocalMessage";
+import { RemoteMessage } from "./RemoteMessage";
 
 export function MessageList(props: { messages: Message[] }) {
     const messages = props.messages.map(
