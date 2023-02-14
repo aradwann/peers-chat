@@ -6,12 +6,7 @@ import { connectPeers } from './rtc-connection'
 import { MessageSender } from './typing/enums';
 import { Message } from './typing/interfaces';
 
-const messageMockArray: Message[] = [
-  { sender: MessageSender.local, data: 'Hello. How are you today?' },
-  { sender: MessageSender.remote, data: "Hey! I'm fine. Thanks for asking!" },
-  { sender: MessageSender.local, data: 'Sweet! So, what do you wanna do today?' },
-  { sender: MessageSender.remote, data: "Nah, I dunno. Play soccer.. or learn more coding perhaps?" },
-]
+
 
 function App() {
 
@@ -19,8 +14,7 @@ function App() {
   const remoteConnection = new RTCPeerConnection();
   const [connectionState, setConnectionState] = useState(localConnection.connectionState)
   const [isConnectBtnDisabled, setConnectBtnDisabled] = useState(false)
-  const [isDisconnectBtnDisabled, setDisconnectBtnDisabled] = useState(true)
-  const [messages, setMessages] = useState<Array<Message>>(messageMockArray)
+  const [messages, setMessages] = useState<Array<Message>>([])
 
   // configure event listeners for connection state  
   localConnection.onconnectionstatechange = e => setConnectionState(localConnection.connectionState)
@@ -71,19 +65,16 @@ function App() {
     console.log(localConnection.connectionState)
   }
 
-  function handleLocalSend(e: SubmitEvent) {
-    e.preventDefault()
-
-    // sendChannel.send(e.target.value)
+  function handleSend(message: Message) {
+    // sendChannel.send(message.data)
+    setMessages([...messages, message])
   }
 
   useEffect(() => {
     if (connectionState === 'connected') {
       setConnectBtnDisabled(true)
-      setDisconnectBtnDisabled(false)
     } else if (connectionState === 'closed') {
       setConnectBtnDisabled(false)
-      setDisconnectBtnDisabled(true)
     }
     console.log('use effect used')
   }, [connectionState])
@@ -96,15 +87,14 @@ function App() {
         <button id='connectBtn' onClick={handleConnectClick} disabled={isConnectBtnDisabled}>
           Connect Peers
         </button>
-        <button id='disconnectBtn' onClick={handleDisonnectClick} disabled={isDisconnectBtnDisabled}>
+        <button id='disconnectBtn' onClick={handleDisonnectClick} disabled={!isConnectBtnDisabled}>
           Disconnect Peers
         </button>
         <p>connection state is {connectionState}</p>
       </div>
 
-      <MessageForm sender={MessageSender.local} />
-      <MessageForm sender={MessageSender.remote} />
-
+      <MessageForm sender={MessageSender.local} disabled={!isConnectBtnDisabled} handleSend={handleSend} />
+      <MessageForm sender={MessageSender.remote} disabled={!isConnectBtnDisabled} handleSend={handleSend} />
       <MessageList messages={messages} />
     </div >
   )

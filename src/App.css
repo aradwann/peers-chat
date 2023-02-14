@@ -98,11 +98,14 @@
 .peer-right {
   float: right;
   color: #d8d8d8;
+  background-color: #242424;
+  border-radius: 20%;
 }
 
 /* Style peer text */
 .peer-left {
   float: left;
   color: #d8d8d8;
-  ;
+  background-color: #242424;
+  border-radius: 20%;
 }
