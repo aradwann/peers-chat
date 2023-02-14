@@ -1,7 +1,18 @@
-import { ButtonHTMLAttributes, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import { LocalMessage, RemoteMessage } from './components/Message';
+import { MessageForm } from './components/MessageForm';
+import { MessageList } from './components/MessageList';
 import { connectPeers } from './rtc-connection'
+import { MessageSender } from './typing/enums';
+import { Message } from './typing/interfaces';
+
+const messageMockArray: Message[] = [
+  { sender: MessageSender.local, data: 'Hello. How are you today?' },
+  { sender: MessageSender.remote, data: "Hey! I'm fine. Thanks for asking!" },
+  { sender: MessageSender.local, data: 'Sweet! So, what do you wanna do today?' },
+  { sender: MessageSender.remote, data: "Nah, I dunno. Play soccer.. or learn more coding perhaps?" },
+]
 
 function App() {
 
@@ -10,6 +21,7 @@ function App() {
   const [connectionState, setConnectionState] = useState(localConnection.connectionState)
   const [isConnectBtnDisabled, setConnectBtnDisabled] = useState(false)
   const [isDisconnectBtnDisabled, setDisconnectBtnDisabled] = useState(true)
+  const [messages, setMessages] = useState<Array<Message>>(messageMockArray)
 
   // configure event listeners for connection state  
   localConnection.onconnectionstatechange = e => setConnectionState(localConnection.connectionState)
@@ -91,45 +103,10 @@ function App() {
         <p>connection state is {connectionState}</p>
       </div>
 
-      <div className="card">
-        <div className="messagebox">
-          <label htmlFor="message"
-          >Enter a message:
-            <input
-              type="text"
-              name="message"
-              id="message"
-              placeholder="Message text"
-            />
-          </label>
-          <button id="sendButton" name="sendButton" className="buttonright" >
-            Send from local
-          </button>
-        </div>
-      </div>
-      <div className="card">
-        <div className="messagebox">
-          <label htmlFor="message"
-          >Enter a message:
-            <input
-              type="text"
-              name="message"
-              id="message"
-              placeholder="Message text"
-            />
-          </label>
-          <button id="sendButton" name="sendButton" className="buttonright" >
-            Send from remote
-          </button>
-        </div>
-      </div>
+      <MessageForm sender={MessageSender.local} />
+      <MessageForm sender={MessageSender.remote} />
 
-      <div className='card'>
-        <LocalMessage message='Hello. How are you today?' />
-        <RemoteMessage message="Hey! I'm fine. Thanks for asking!" />
-        <LocalMessage message='Sweet! So, what do you wanna do today?' />
-        <RemoteMessage message="Nah, I dunno. Play soccer.. or learn more coding perhaps?" />
-      </div>
+      <MessageList messages={messages} />
     </div >
   )
 }

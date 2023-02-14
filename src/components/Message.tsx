@@ -1,9 +1,7 @@
 import { FC } from "react";
+import { Message } from "../typing/interfaces";
 
-enum MessageSender {
-    local = 'local',
-    remote = 'remote'
-}
+
 interface SenderProps {
     className: string;
     imageSource: string;
@@ -13,16 +11,13 @@ interface SenderProps {
     timeAligment: string
 }
 
-interface Message {
-    message: string
-}
 
 const MessageComponentFactory = (senderProps: SenderProps) => {
-    const messageComponent: FC<Message> = (msg) => (
+    const messageComponent: FC<Pick<Message, "data">> = (msg) => (
         <div className={senderProps.className}>
             <img src={senderProps.imageSource} alt="Avatar" className={senderProps.imageAlignment} />
             <span className={senderProps.labelClass}>{senderProps.labelName}</span>
-            <p>{msg.message}</p>
+            <p>{msg.data}</p>
             <span className={senderProps.timeAligment}>11:00</span>
         </div>
     )
