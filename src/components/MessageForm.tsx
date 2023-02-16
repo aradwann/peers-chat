@@ -9,7 +9,6 @@ export function MessageForm(props: { disabled: boolean, handleSend: (message: Me
     function handleClick(e: MouseEvent) {
         const buttonId = e.currentTarget.id
         buttonId === "localSendButton" ? setSender(MessageSender.local) : setSender(MessageSender.remote)
-        console.log(e.currentTarget.id);
     }
 
     function handleSubmit(e: FormEvent) {
@@ -17,7 +16,6 @@ export function MessageForm(props: { disabled: boolean, handleSend: (message: Me
         const formData = new FormData(e.target as HTMLFormElement);
         const messageData = formData.get('message') as string
         props.handleSend({ data: messageData, sender })
-        console.log(`you submitted ${messageData}`);
 
     }
 

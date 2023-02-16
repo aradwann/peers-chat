@@ -1,5 +1,5 @@
-import { SenderProps } from "../typing/interfaces"
-import { createMessageComponent } from "./utils"
+import { SenderProps } from "../../typing/interfaces"
+import { createMessageComponent } from "../utils"
 
 const localProps: SenderProps = {
     className: "container",

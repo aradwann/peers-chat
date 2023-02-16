@@ -1,100 +1,102 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { MessageForm } from './components/MessageForm';
-import { MessageList } from './components/MessageList';
-import { connectPeers } from './rtc-connection'
+import { ClientTypeForm } from './components/ClientTypeForm';
+import { LocalView } from './components/local-components/LocalView';
+// import { MessageForm } from './components/MessageForm';
+// import { MessageList } from './components/MessageList';
+// import { Message } from './typing/interfaces';
+
+import { RemoteView } from './components/remote-components/RemoteView';
 import { MessageSender } from './typing/enums';
-import { Message } from './typing/interfaces';
 
 
 
 function App() {
 
-  const localConnection = new RTCPeerConnection();
-  const remoteConnection = new RTCPeerConnection();
-  const [connectionState, setConnectionState] = useState(localConnection.connectionState)
-  const [isConnectBtnDisabled, setConnectBtnDisabled] = useState(false)
-  const [messages, setMessages] = useState<Array<Message>>([])
+  const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
+  const pc = new RTCPeerConnection(configuration);
 
+  const [clientType, setClientType] = useState<MessageSender>()
+  const [connectionState, setConnectionState] = useState(pc.connectionState)
+  // const [isConnectBtnDisabled, setConnectBtnDisabled] = useState(false)
+  // const [messages, setMessages] = useState<Array<Message>>([])
+  //////////////////////////////////////////////////// local ///////////////////////////////
   // configure event listeners for connection state  
-  localConnection.onconnectionstatechange = e => setConnectionState(localConnection.connectionState)
+  pc.onconnectionstatechange = e => setConnectionState(pc.connectionState)
 
-  // remoteConnection.onconnectionstatechange = e => console.log({ remoteConnectionState: remoteConnection.connectionState })
+  pc.oniceconnectionstatechange = e => console.log("local ICE state", pc.iceConnectionState);
 
 
   // create data channel for local peer
-  const sendChannel = localConnection.createDataChannel("sendChannel");
-  sendChannel.onopen = (e) => console.log('sendChannel opened', sendChannel);
-  sendChannel.onclose = (e) => {
-    console.log('sendChannel closed on local peer');
-  };
+  if (clientType === MessageSender.local) {
+    const sendChannel = pc.createDataChannel("sendChannel");
+    sendChannel.onopen = (e) => {
+      console.log('sendChannel opened', sendChannel)
 
-  // remote data channel event listener
-  remoteConnection.ondatachannel = (event) => {
-    const receiveChannel = event.channel
-    console.log('receivedChannel opened', receiveChannel);
-    receiveChannel.onclose = (event) => {
-      console.log('sendChannel closed on remote peer');
     };
-    receiveChannel.onmessage = (event) => console.log('message receive on remote', event.data)
+    sendChannel.onmessage = (event) => console.log('message receive on local', event.data)
+
+    sendChannel.onclose = (e) => {
+      console.log('sendChannel closed on local peer');
+    };
+
+
   }
+  ///////////////////////////////////////////// remote //////////////////////////////////////////////
 
 
-  // setup the ICE candidates
-  localConnection.addEventListener('icecandidate', async (e) => {
-    if (e.candidate) {
-      console.log('local connection ICE candidate: ', e.candidate)
-      await remoteConnection.addIceCandidate(e.candidate)
+  if (clientType === MessageSender.remote) {
+
+
+    // remote data channel event listener
+    pc.ondatachannel = (event) => {
+      const receiveChannel = event.channel
+      receiveChannel.onopen = (e) => {
+        console.log('connection OPENED')
+
+      };
+      receiveChannel.onmessage = (event) => console.log('message receive on remote', event.data)
     }
-  })
-  remoteConnection.addEventListener('icecandidate', async (e) => {
-    if (e.candidate) {
-      console.log('remote connection ICE candidate: ', e.candidate);
-      await localConnection.addIceCandidate(e.candidate)
-    }
-  })
-
-  function handleConnectClick() {
-    connectPeers(localConnection, remoteConnection)
-  }
-  function handleDisonnectClick() {
-    sendChannel.close()
-    localConnection.close()
-    remoteConnection.close()
-    setConnectionState(localConnection.connectionState)
-    console.log(localConnection.connectionState)
   }
 
-  function handleSend(message: Message) {
-    // sendChannel.send(message.data)
-    setMessages([...messages, message])
-  }
 
-  useEffect(() => {
-    if (connectionState === 'connected') {
-      setConnectBtnDisabled(true)
-    } else if (connectionState === 'closed') {
-      setConnectBtnDisabled(false)
-    }
-    console.log('use effect used')
-  }, [connectionState])
+  // function handleSend(message: Message) {
+  //   sendChannel.send(message.data)
+  //   setMessages([...messages, message])
+  // }
+
+  // useEffect(() => {
+  //   if (connectionState === 'connected') {
+  //     setConnectBtnDisabled(true)
+  //   } else if (connectionState === 'closed') {
+  //     setConnectBtnDisabled(false)
+  //   }
+  // }, [connectionState])
 
   return (
     <div className="App">
 
       <h1>Peers</h1>
+      <ClientTypeForm setClientType={(messageSender: MessageSender) => { setClientType(messageSender) }} />
+      {clientType ? <h3>you are now the {clientType}</h3> : <></>}
+
+      {
+        clientType === MessageSender.local &&
+        <LocalView pc={pc} />
+      }
+      {
+        clientType === MessageSender.remote &&
+        <RemoteView pc={pc} />
+      }
+
+
+
       <div className="card">
-        <button id='connectBtn' onClick={handleConnectClick} disabled={isConnectBtnDisabled}>
-          Connect Peers
-        </button>
-        <button id='disconnectBtn' onClick={handleDisonnectClick} disabled={!isConnectBtnDisabled}>
-          Disconnect Peers
-        </button>
-        <p>connection state is {connectionState}</p>
+        <h3>connection state is {connectionState}</h3>
       </div>
 
-      <MessageForm disabled={!isConnectBtnDisabled} handleSend={handleSend} />
-      <MessageList messages={messages} />
+      {/* <MessageForm disabled={!isConnectBtnDisabled} handleSend={handleSend} />
+      <MessageList messages={messages} /> */}
     </div >
   )
 }
