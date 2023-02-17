@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react"
+import { FormEvent, useState } from "react"
 
 export function OfferForm(props: { pc: RTCPeerConnection }) {
     const [offer, setOffer] = useState<string>()

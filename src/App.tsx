@@ -1,104 +1,102 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
-import { ClientTypeForm } from './components/ClientTypeForm';
-import { LocalView } from './components/local-components/LocalView';
-// import { MessageForm } from './components/MessageForm';
-// import { MessageList } from './components/MessageList';
-// import { Message } from './typing/interfaces';
-
-import { RemoteView } from './components/remote-components/RemoteView';
-import { MessageSender } from './typing/enums';
+import { MessageForm } from './components/MessageForm';
+import { MessageList } from './components/MessageList';
+import { Message } from './typing/interfaces';
+import { handleOffer, handleAnswer, handleCandidate, makeCall } from './webrtc/signal';
 
 
 
 function App() {
 
-  const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
-  const pc = new RTCPeerConnection(configuration);
+  const pc = useMemo(() => new RTCPeerConnection(), []);
+  const signalingChannel = useMemo(() => new BroadcastChannel('webrtc'), []);
 
-  const [clientType, setClientType] = useState<MessageSender>()
   const [connectionState, setConnectionState] = useState(pc.connectionState)
-  // const [isConnectBtnDisabled, setConnectBtnDisabled] = useState(false)
-  // const [messages, setMessages] = useState<Array<Message>>([])
-  //////////////////////////////////////////////////// local ///////////////////////////////
+  const [isConnectBtnDisabled, setConnectBtnDisabled] = useState(false)
+  const [messages, setMessages] = useState<Array<Message>>([])
+
   // configure event listeners for connection state  
   pc.onconnectionstatechange = e => setConnectionState(pc.connectionState)
 
-  pc.oniceconnectionstatechange = e => console.log("local ICE state", pc.iceConnectionState);
-
-
-  // create data channel for local peer
-  if (clientType === MessageSender.local) {
-    const sendChannel = pc.createDataChannel("sendChannel");
-    sendChannel.onopen = (e) => {
-      console.log('sendChannel opened', sendChannel)
-
-    };
-    sendChannel.onmessage = (event) => console.log('message receive on local', event.data)
-
-    sendChannel.onclose = (e) => {
-      console.log('sendChannel closed on local peer');
-    };
-
-
+  function handleConnectClick() {
+    signalingChannel.postMessage({ type: 'ready' });
   }
-  ///////////////////////////////////////////// remote //////////////////////////////////////////////
+  function handleDisonnectClick() {
+    pc.close()
+    setConnectionState(pc.connectionState)
+    signalingChannel.postMessage({ type: 'bye' });
+  }
 
+  function handleSend(message: Message) {
+    // sendChannel.send(message.data)
+    setMessages([...messages, message])
+  }
 
-  if (clientType === MessageSender.remote) {
+  useEffect(() => {
+    // set signal channel message handling once the component rendered
+    signalingChannel.onmessage = async (e: MessageEvent<any>) => {
 
+      switch (e.data.type) {
+        case 'offer':
+          console.log("recieved message", e.data);
+          await handleOffer(signalingChannel, pc, e.data);
+          break;
+        case 'answer':
+          console.log("recieved message", e.data);
 
-    // remote data channel event listener
-    pc.ondatachannel = (event) => {
-      const receiveChannel = event.channel
-      receiveChannel.onopen = (e) => {
-        console.log('connection OPENED')
+          await handleAnswer(pc, e.data);
+          break;
+        case 'candidate':
+          console.log("recieved message", e.data);
 
-      };
-      receiveChannel.onmessage = (event) => console.log('message receive on remote', event.data)
+          await handleCandidate(pc, e.data.candidate);
+          break;
+        case 'ready':
+          console.log("recieved message", e.data);
+
+          await makeCall(signalingChannel, pc);
+          break;
+        case 'bye':
+          console.log("recieved message", e.data);
+
+          if (pc) {
+            pc.close()
+          }
+          break;
+        default:
+          console.log('unhandled', e);
+          break;
+      }
+    };
+    if (connectionState === 'connected') {
+      setConnectBtnDisabled(true)
+    } else if (connectionState === 'closed') {
+      setConnectBtnDisabled(false)
     }
-  }
-
-
-  // function handleSend(message: Message) {
-  //   sendChannel.send(message.data)
-  //   setMessages([...messages, message])
-  // }
-
-  // useEffect(() => {
-  //   if (connectionState === 'connected') {
-  //     setConnectBtnDisabled(true)
-  //   } else if (connectionState === 'closed') {
-  //     setConnectBtnDisabled(false)
-  //   }
-  // }, [connectionState])
+    console.log('use effect used')
+  }, [connectionState, pc, signalingChannel])
 
   return (
     <div className="App">
 
       <h1>Peers</h1>
-      <ClientTypeForm setClientType={(messageSender: MessageSender) => { setClientType(messageSender) }} />
-      {clientType ? <h3>you are now the {clientType}</h3> : <></>}
-
-      {
-        clientType === MessageSender.local &&
-        <LocalView pc={pc} />
-      }
-      {
-        clientType === MessageSender.remote &&
-        <RemoteView pc={pc} />
-      }
-
-
-
       <div className="card">
-        <h3>connection state is {connectionState}</h3>
+        <button id='connectBtn' onClick={handleConnectClick} disabled={isConnectBtnDisabled}>
+          Connect Peers
+        </button>
+        <button id='disconnectBtn' onClick={handleDisonnectClick} disabled={!isConnectBtnDisabled}>
+          Disconnect Peers
+        </button>
+        <p>connection state is {connectionState}</p>
       </div>
 
-      {/* <MessageForm disabled={!isConnectBtnDisabled} handleSend={handleSend} />
-      <MessageList messages={messages} /> */}
+      <MessageForm disabled={!isConnectBtnDisabled} handleSend={handleSend} />
+      <MessageList messages={messages} />
     </div >
   )
 }
 
 export default App
+
+

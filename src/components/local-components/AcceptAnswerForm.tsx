@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react"
+import { FormEvent } from "react"
 
 export function AcceptAnswerForm(props: { pc: RTCPeerConnection }) {
     async function handleSubmit(e: FormEvent) {
