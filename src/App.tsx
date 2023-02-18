@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { MessageForm } from './components/MessageForm';
 import { MessageList } from './components/MessageList';
+import { MessageSender, SignalMessageType } from './typing/enums';
 import { Message } from './typing/interfaces';
 import { handleOffer, handleAnswer, handleCandidate, makeCall } from './webrtc/signal';
 
@@ -20,49 +21,57 @@ function App() {
   pc.onconnectionstatechange = e => setConnectionState(pc.connectionState)
 
   function handleConnectClick() {
-    signalingChannel.postMessage({ type: 'ready' });
+    signalingChannel.postMessage({ type: SignalMessageType.ready });
   }
   function handleDisonnectClick() {
     pc.close()
     setConnectionState(pc.connectionState)
-    signalingChannel.postMessage({ type: 'bye' });
+    signalingChannel.postMessage({ type: SignalMessageType.bye });
   }
 
-  function handleSend(message: Message) {
-    // sendChannel.send(message.data)
-    setMessages([...messages, message])
+  const handleReceiveMsg = useCallback(function handleReceiveMsg(message: string) {
+    const msg: Message = { data: message, sender: MessageSender.remote }
+    setMessages([...messages, msg])
+  }, [messages])
+
+  const handleSend = (rtcDataChannel: RTCDataChannel) => (message: string) => {
+    rtcDataChannel.send(message)
+    const msg: Message = { data: message, sender: MessageSender.remote }
+    setMessages([...messages, msg])
   }
+
+  let handleSendMsg: (message: string) => void | undefined
 
   useEffect(() => {
     // set signal channel message handling once the component rendered
     signalingChannel.onmessage = async (e: MessageEvent<any>) => {
-
-      switch (e.data.type) {
-        case 'offer':
+      const msgType: SignalMessageType = e.data.type
+      switch (msgType) {
+        case SignalMessageType.offer:
           console.log("recieved message", e.data);
-          await handleOffer(signalingChannel, pc, e.data);
+
+          await handleOffer(signalingChannel, pc, e.data, handleReceiveMsg);
           break;
-        case 'answer':
+        case SignalMessageType.answer:
           console.log("recieved message", e.data);
 
           await handleAnswer(pc, e.data);
           break;
-        case 'candidate':
+        case SignalMessageType.candidate:
           console.log("recieved message", e.data);
 
           await handleCandidate(pc, e.data.candidate);
           break;
-        case 'ready':
+        case SignalMessageType.ready:
           console.log("recieved message", e.data);
 
-          await makeCall(signalingChannel, pc);
+          await makeCall(signalingChannel, pc, handleReceiveMsg)
           break;
-        case 'bye':
+        case SignalMessageType.bye:
           console.log("recieved message", e.data);
 
-          if (pc) {
-            pc.close()
-          }
+          pc.close()
+          setConnectionState(pc.connectionState)
           break;
         default:
           console.log('unhandled', e);
@@ -74,8 +83,8 @@ function App() {
     } else if (connectionState === 'closed') {
       setConnectBtnDisabled(false)
     }
-    console.log('use effect used')
-  }, [connectionState, pc, signalingChannel])
+
+  }, [connectionState, handleReceiveMsg, pc, signalingChannel])
 
   return (
     <div className="App">
@@ -91,7 +100,7 @@ function App() {
         <p>connection state is {connectionState}</p>
       </div>
 
-      <MessageForm disabled={!isConnectBtnDisabled} handleSend={handleSend} />
+      {/* <MessageForm disabled={!isConnectBtnDisabled} handleSend={handleSendMsg} /> */}
       <MessageList messages={messages} />
     </div >
   )
