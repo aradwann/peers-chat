@@ -63,30 +63,22 @@ function App() {
     // set signal channel message handling once the component rendered
     signalingChannel.onmessage = async (e: MessageEvent<any>) => {
       const msgType: SignalMessageType = e.data.type
+      console.log("recieved message", e.data);
+
       switch (msgType) {
         case SignalMessageType.offer:
-          console.log("recieved message", e.data);
-
           await handleOffer(signalingChannel, pc, e.data, handleDataChannel);
           break;
         case SignalMessageType.answer:
-          console.log("recieved message", e.data);
-
           await handleAnswer(pc, e.data);
           break;
         case SignalMessageType.candidate:
-          console.log("recieved message", e.data);
-
           await handleCandidate(pc, e.data.candidate);
           break;
         case SignalMessageType.ready:
-          console.log("recieved message", e.data);
-
           await makeCall(signalingChannel, pc, handleDataChannel)
           break;
         case SignalMessageType.bye:
-          console.log("recieved message", e.data);
-
           pc.close()
           setConnectionState(pc.connectionState)
           break;
