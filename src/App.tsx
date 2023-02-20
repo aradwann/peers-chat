@@ -10,15 +10,33 @@ import { handleOffer, handleAnswer, handleCandidate, makeCall } from './webrtc/s
 
 function App() {
 
-  const pc = useMemo(() => new RTCPeerConnection(), []);
+  const pc = useMemo(() => {
+    const pc = new RTCPeerConnection()
+    // configure event listeners for connection state  
+    pc.onconnectionstatechange = e => setConnectionState(pc.connectionState)
+    return pc
+  }, []);
+
   const signalingChannel = useMemo(() => new BroadcastChannel('webrtc'), []);
 
   const [connectionState, setConnectionState] = useState(pc.connectionState)
-  const [isConnectBtnDisabled, setConnectBtnDisabled] = useState(false)
+  const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null)
   const [messages, setMessages] = useState<Array<Message>>([])
 
-  // configure event listeners for connection state  
-  pc.onconnectionstatechange = e => setConnectionState(pc.connectionState)
+  const handleDataChannel = useCallback((dataChannel: RTCDataChannel) => {
+    setDataChannel(dataChannel);
+
+    dataChannel.onopen = () => console.log("localChannel opened")
+    dataChannel.onclose = () => console.log("localChannel closed")
+
+    dataChannel.onmessage = e => {
+      const msg: Message = { data: e.data, sender: MessageSender.remote }
+      setMessages([...messages, msg])
+
+    }
+  }, [messages])
+
+
 
   function handleConnectClick() {
     signalingChannel.postMessage({ type: SignalMessageType.ready });
@@ -29,20 +47,19 @@ function App() {
     signalingChannel.postMessage({ type: SignalMessageType.bye });
   }
 
-  const handleReceiveMsg = useCallback(function handleReceiveMsg(message: string) {
-    const msg: Message = { data: message, sender: MessageSender.remote }
-    setMessages([...messages, msg])
-  }, [messages])
-
-  const handleSend = (rtcDataChannel: RTCDataChannel) => (message: string) => {
-    rtcDataChannel.send(message)
-    const msg: Message = { data: message, sender: MessageSender.remote }
-    setMessages([...messages, msg])
+  function handleSend(message: string) {
+    if (dataChannel) {
+      dataChannel.send(message)
+      const msg: Message = { data: message, sender: MessageSender.local }
+      setMessages([...messages, msg])
+    } else {
+      console.log("data channel value is", dataChannel);
+    }
   }
 
-  let handleSendMsg: (message: string) => void | undefined
 
   useEffect(() => {
+
     // set signal channel message handling once the component rendered
     signalingChannel.onmessage = async (e: MessageEvent<any>) => {
       const msgType: SignalMessageType = e.data.type
@@ -50,7 +67,7 @@ function App() {
         case SignalMessageType.offer:
           console.log("recieved message", e.data);
 
-          await handleOffer(signalingChannel, pc, e.data, handleReceiveMsg);
+          await handleOffer(signalingChannel, pc, e.data, handleDataChannel);
           break;
         case SignalMessageType.answer:
           console.log("recieved message", e.data);
@@ -65,7 +82,7 @@ function App() {
         case SignalMessageType.ready:
           console.log("recieved message", e.data);
 
-          await makeCall(signalingChannel, pc, handleReceiveMsg)
+          await makeCall(signalingChannel, pc, handleDataChannel)
           break;
         case SignalMessageType.bye:
           console.log("recieved message", e.data);
@@ -78,29 +95,25 @@ function App() {
           break;
       }
     };
-    if (connectionState === 'connected') {
-      setConnectBtnDisabled(true)
-    } else if (connectionState === 'closed') {
-      setConnectBtnDisabled(false)
-    }
 
-  }, [connectionState, handleReceiveMsg, pc, signalingChannel])
+
+  }, [connectionState, handleDataChannel, pc, signalingChannel])
 
   return (
     <div className="App">
 
       <h1>Peers</h1>
       <div className="card">
-        <button id='connectBtn' onClick={handleConnectClick} disabled={isConnectBtnDisabled}>
+        <button id='connectBtn' onClick={handleConnectClick} disabled={connectionState === 'connected'}>
           Connect Peers
         </button>
-        <button id='disconnectBtn' onClick={handleDisonnectClick} disabled={!isConnectBtnDisabled}>
+        <button id='disconnectBtn' onClick={handleDisonnectClick} disabled={connectionState !== 'connected'}>
           Disconnect Peers
         </button>
         <p>connection state is {connectionState}</p>
       </div>
 
-      {/* <MessageForm disabled={!isConnectBtnDisabled} handleSend={handleSendMsg} /> */}
+      <MessageForm disabled={connectionState !== 'connected'} handleSend={handleSend} />
       <MessageList messages={messages} />
     </div >
   )

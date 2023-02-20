@@ -21,23 +21,13 @@ export function publishIceCandidate(signalingChannel: BroadcastChannel, pc: RTCP
     };
 }
 
-export async function makeCall(signalingChannel: BroadcastChannel, pc: RTCPeerConnection, handleReceiveMsg: (message: string) => void) {
+export async function makeCall(signalingChannel: BroadcastChannel, pc: RTCPeerConnection, handleDataChannel: (dataChannel: RTCDataChannel) => void) {
 
     publishIceCandidate(signalingChannel, pc)
     //create data channel for local / offer maker peer
-    const sendChannel = pc.createDataChannel("sendChannel");
-    sendChannel.onopen = (e) => {
-        console.log('sendChannel opened');
-        sendChannel.send('Hello')
-    };
-    sendChannel.onmessage = (event) => {
-        console.log('message receive on remote', event.data)
-        handleReceiveMsg(event.data)
-    }
-    sendChannel.onclose = (e) => {
-        console.log('sendChannel closed on local peer');
-    };
+    const sendChannel = pc.createDataChannel("localChannel");
 
+    handleDataChannel(sendChannel)
 
     const offer = await pc.createOffer();
     signalingChannel.postMessage({ type: offer.type, sdp: offer.sdp });
@@ -45,22 +35,14 @@ export async function makeCall(signalingChannel: BroadcastChannel, pc: RTCPeerCo
 
 }
 
-export async function handleOffer(signalingChannel: BroadcastChannel, pc: RTCPeerConnection, offer: RTCSessionDescriptionInit, handleReceiveMsg: (message: string) => void) {
-    let receiveChannel: RTCDataChannel
+export async function handleOffer(signalingChannel: BroadcastChannel, pc: RTCPeerConnection, offer: RTCSessionDescriptionInit, handleDataChannel: (dataChannel: RTCDataChannel) => void) {
+
     publishIceCandidate(signalingChannel, pc)
 
     // remote data channel event listener
     pc.ondatachannel = (event) => {
-        receiveChannel = event.channel
-        console.log('sendChannel opened on remote');
-        receiveChannel.onclose = (event) => {
-            console.log('sendChannel closed on remote peer');
-        };
-        receiveChannel.onmessage = (event) => {
-            console.log('message receive on remote', event.data)
-            if (event.data === 'Hello') receiveChannel.send('Hello back')
-            handleReceiveMsg(event.data)
-        }
+
+        handleDataChannel(event.channel)
     }
 
     await pc.setRemoteDescription(offer);
