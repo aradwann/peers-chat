@@ -1,11 +1,11 @@
-# Local Chat
+# Peers Chat
 
-![Vercel](https://vercelbadge.vercel.app/api/aradwann/local-chat)
+![Vercel](https://vercelbadge.vercel.app/api/aradwann/peers-chat)
 
 This project is a demo for WebRTC which is an open web standard that enables peer to peer real time communication between browsers
 
 built with react only without extra dependencies 
-and deployed on vercel [live](https://local-chat.vercel.app/)
+and deployed on vercel [live](https://peers-chat.vercel.app/)
 
 ![webRTC](https://www.kirupa.com/html5/images/signaling_server.png)
 
