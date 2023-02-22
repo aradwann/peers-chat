@@ -31,10 +31,11 @@ function App() {
 
     dataChannel.onmessage = e => {
       const msg: Message = { data: e.data, sender: MessageSender.remote }
-      setMessages([...messages, msg])
-
+      // use update function instead of the new state to queue-a-series-of-state-updates
+      // see https://beta.reactjs.org/learn/queueing-a-series-of-state-updates
+      setMessages(messages => ([...messages, msg]))
     }
-  }, [messages])
+  }, [])
 
 
 
